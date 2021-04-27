@@ -1,5 +1,15 @@
 'use strict';
 document.addEventListener("DOMContentLoaded", () => {
+    const movieDB = {
+        movies: [
+            "Одержимость",
+            "Логан",
+            "Лига справедливости",
+            "Ла-ла лэнд",
+            "Скотт Пилигрим против..."
+        ]
+    };
+
     const adv = document.querySelectorAll(".promo__adv img"),
     poster = document.querySelector(".promo__bg"),
     genre = poster.querySelector(".promo__genre"),
@@ -8,74 +18,71 @@ document.addEventListener("DOMContentLoaded", () => {
     addInput = addForm.querySelector(".adding__input"),
     checkbox = addForm.querySelector("[type=checkbox]");
 
-    const movieDB = {
-    movies: [
-        "Одержимость",
-        "Логан",
-        "Лига справедливости",
-        "Ла-ла лэнд",
-        "Скотт Пилигрим против..."
-    ]
+    addForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        let newFilm = addInput.value;
+        const favorite = checkbox.checked;
+
+        if (newFilm) {
+
+            if (newFilm.length >21) {
+                newFilm = `${newFilm.substring(0, 22)}...`;
+            }
+
+            if (favorite) {
+                console.log("Добавляем любимый фильм");
+            }
+
+            movieDB.movies.push(newFilm);
+            sortArr(movieDB.movies);
+    
+            createMovieList(movieDB.movies, movieList);
+        }
+
+        event.target.reset();
+
+    });
+
+    const deleteAdv = (arr) => {
+        arr.forEach(item => {
+            item.remove();
+        });
     };
 
-    adv.forEach(item => {
-        item.remove();
-    });
+    const makeChanges = () => {
+        genre.textContent = "Драма";
+        poster.style.background = "url('img/bg.jpg') center center/cover no-repeat";
+    };
 
-    genre.textContent = "Драма";
+    const sortArr = (arr) => {
+        arr.sort();
+    };
 
-    poster.style.background = "url('img/bg.jpg') center center/cover no-repeat";
+    function createMovieList(films, parent) {
+        parent.innerHTML = "";
+        sortArr(films);
+        
+        films.forEach((film, i) => {
+            parent.innerHTML += `
+                <li class="promo__interactive-item">${i + 1} ${film}
+                    <div class="delete"></div>
+                </li>
+            `;
+        });
 
-    movieList.innerHTML = "";
+        document.querySelectorAll(".delete").forEach((btn, i) => {
+            btn.addEventListener("click", () => {
+                btn.parentElement.remove();
+                movieDB.movies.splice(i, 1);
 
-
-    const newFilm = document.querySelector(".adding__input");
-
-    const confirmBtn = document.querySelector("button");
-
-    updateFilmList();
-
-    const likeFilm = document.querySelector("input[type='checkbox']");
-
-    confirmBtn.addEventListener("click", function(event) {
-    event.preventDefault();
-    if (newFilm.value.length != 0 && newFilm.value.length < 21) {
-        movieDB.movies.push(newFilm.value.toUpperCase());
-        addToLikedFilm();
-    } else if (newFilm.value.length > 21) {
-        movieDB.movies.push(newFilm.value.slice(0, 21).toUpperCase()+"...");
-        addToLikedFilm();
+                createMovieList(films, parent);
+            });
+        });
     }
 
-    newFilm.value = "";
-    updateFilmList();
-    });
+    deleteAdv(adv);
+    makeChanges();
+    createMovieList(movieDB.movies, movieList);
 
-    function updateFilmList() {
-    movieList.innerHTML = "";
-    movieDB.movies.sort();
-    movieDB.movies.forEach((film, i) => {
-        movieList.innerHTML += `
-            <li class="promo__interactive-item">${i + 1} ${film}
-                <div class="delete"></div>
-            </li>
-        `;
-    });
-    }
-
-    function addToLikedFilm() {
-    if (likeFilm.checked) {
-        console.log("Добавлено в любимые фильмы");
-        likeFilm.checked = false;
-    }
-    }
-
-    let delFilm = document.querySelectorAll(".delete");
-    delFilm.forEach(element => {
-    element.addEventListener("click", function(event) {
-        console.log(element.previousSibling);
-    });
-    });
 });
-
-
